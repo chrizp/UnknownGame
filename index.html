@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+canvas {
+    border:1px solid #d3d3d3;
+    background-color: #f1f1f1;
+}
+</style>
+</head>
+<body onload="startGame()">
+<script>
+
+var myGamePiece;
+var myObstacles = [];
+var myScore;
+var myHighScore;
+var spawnRate;
+var gameLengthInFrames = 2000;
+
+document.addEventListener("mousedown", fly);
+document.addEventListener("mouseup", fall);
+
+function fly() {
+accelerate(-0.4)
+}
+
+function fall() {
+accelerate(0.3)
+}
+
+function getHighScore(){
+	var score = 0;
+   try { score = parseInt(localStorage.highScore); } catch (e) { score = 0; }
+   if (!(typeof score === 'undefined')) {
+		return score;
+   }
+   return 0;
+}
+
+function setHighScore(score) {
+   var saved = 0;
+   try { saved = parseInt(localStorage.highScore); } catch (e) { saved = 0; }
+   if (!(typeof score === 'undefined')) {
+      try { score = parseInt(score); } catch (e) { score = 0; }
+        saved = score;
+        localStorage.highScore = '' + score;
+   }
+   if (isNaN(saved)) {
+      saved = 0;
+      localStorage.highScore = '0';
+   }
+   return saved;
+}
+
+function refreshPage(){
+    window.location.reload();
+} 
+
+function startGame() {
+    myGamePiece = new component(35, 18, "red", 10, 120);
+    myGamePiece.gravity = 0.3;    
+    myScore = new component("26px", "Consolas", "black", 500, 80, "text");    
+    myHighScore = new component("26px", "Consolas", "black", 500, 40, "text");    
+    spawnRate = 150;
+    myGameArea.start();  
+    myHighScore.text = "HighScore: " + getHighScore();  
+}
+
+var myGameArea = {
+    canvas : document.createElement("canvas"),
+    start : function() {
+        this.canvas.width = 800;
+        this.canvas.height = 400;
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.frameNo = 0;
+        this.lastFrameNo = 0;
+        this.interval = setInterval(updateGameArea, 20);
+        },
+    clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+
+function component(width, height, color, x, y, type) {
+    this.type = type;
+    this.score = 0;
+    this.width = width;
+    this.height = height;
+    this.speedX = 0;
+    this.speedY = 0;    
+    this.x = x;
+    this.y = y;
+    this.gravity = 0;
+    this.gravitySpeed = 0;
+    this.update = function() {
+        ctx = myGameArea.context;
+        if (this.type == "text") {
+            ctx.font = this.width + " " + this.height;
+            ctx.fillStyle = color;
+            ctx.fillText(this.text, this.x, this.y);
+        } else {
+            ctx.fillStyle = color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+    }
+    this.newPos = function() {
+        this.gravitySpeed += this.gravity;
+        this.x += this.speedX;
+        this.y += this.speedY + this.gravitySpeed;
+        this.hitBottom();
+        this.hitTop();
+    }
+    this.hitBottom = function() {
+        var rockbottom = myGameArea.canvas.height - this.height;
+        if (this.y > rockbottom) {
+            this.y = rockbottom;
+            this.gravitySpeed = 0;
+        }
+    }
+    this.hitTop = function() {
+        var rocktop = this.height - this.height;
+        if (this.y < rocktop) {
+            this.y = rocktop;
+            this.gravitySpeed = 0;
+        }
+    }
+    this.crashWith = function(otherobj) {
+        var myleft = this.x;
+        var myright = this.x + (this.width);
+        var mytop = this.y;
+        var mybottom = this.y + (this.height);
+        var otherleft = otherobj.x;
+        var otherright = otherobj.x + (otherobj.width);
+        var othertop = otherobj.y;
+        var otherbottom = otherobj.y + (otherobj.height);
+        var crash = true;
+        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+            crash = false;
+        }
+        
+        return crash;
+    }
+}
+
+//Game loop settings
+function updateGameArea() {
+    var x, height, gap, minHeight, maxHeight, minGap, maxGap;
+    for (i = 0; i < myObstacles.length; i += 1) {
+        if (myGamePiece.crashWith(myObstacles[i])) {  
+        
+            myGameArea.clear();
+            
+            //new highscore
+            if(myGameArea.frameNo > getHighScore())
+            {
+            	myHighScore.text = "NEW HIGHSCORE!!";
+                myScore.text = "Score: " + myGameArea.frameNo;
+                
+        		setHighScore(myGameArea.frameNo);  
+                
+                myHighScore.x = 280;
+            	myHighScore.y = 185;
+            	myScore.x = 280;
+            	myScore.y = 215;
+            	myHighScore.update();
+            	myScore.update();          
+                      
+            	window.stop();
+                return;
+            }
+            
+			myHighScore.text = "Game Over..";
+            myScore.text = "Score: " + myGameArea.frameNo;               
+            
+            myHighScore.x = 280;
+            myHighScore.y = 185;
+            myScore.x = 280;
+            myScore.y = 215;
+            myHighScore.update();
+            myScore.update();          
+                      
+            window.stop();
+            return;
+        } 
+    }
+    
+    myGameArea.clear();
+    myGameArea.frameNo += 1;  
+    
+    if (myGameArea.frameNo == 1 ||  myGameArea.frameNo >= spawnRate) {
+    	
+    	spawnRate = myGameArea.frameNo + parseInt(Math.lerp(115,33, myGameArea.frameNo / gameLengthInFrames));
+        x = myGameArea.canvas.width;
+        minHeight = 20;
+        maxHeight = 200;
+        height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
+        minGap = 60;
+        maxGap = parseInt(Math.lerp(200, 150, myGameArea.frameNo / gameLengthInFrames)); //default 200
+        gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
+        myObstacles.push(new component(25, height, "green", x, 0));
+        myObstacles.push(new component(25, x - height - gap, "green", x, height + gap));       
+    }
+    for (i = 0; i < myObstacles.length; i += 1) {
+        myObstacles[i].x += Math.lerp(-3,-9.5, myGameArea.frameNo / gameLengthInFrames);
+        myObstacles[i].update();
+    }
+    
+    //clear old obstacles
+    for (i = myObstacles.length-1; i > -1; i -= 1) {
+    	if(myObstacles[i].x < -60){
+        	myObstacles.splice(i,1);
+        }
+    }
+    
+    myScore.text = "Score: " + myGameArea.frameNo;
+    myScore.update();
+    myHighScore.update();
+    
+    myGamePiece.newPos();
+    myGamePiece.update();
+}
+
+function accelerate(n) {
+    myGamePiece.gravity = n;
+}
+
+// Obtient une interpolation linéaire entre 2 valeurs
+Math.lerp = function (value1, value2, amount) {
+	amount = amount < 0 ? 0 : amount;
+	amount = amount > 1 ? 1 : amount;
+	return value1 + (value2 - value1) * amount;
+};
+
+// Obtient une valeur comprise dans un interval
+Math.clamp = function (value, min, max) {
+
+	if (value < min) {
+		return min;
+	}
+	else if (value > max) {
+		return max;
+	}
+
+	return value;
+};
+</script>
+<br>
+<br>
+<button onclick="refreshPage()">Restart Game</button>
+<p>How long can you stay alive?</p>
+<p>- chrizp.y</p>
+</body>
+</html>
