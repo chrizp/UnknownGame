@@ -5,7 +5,7 @@
 <style>
 canvas {
        
-       background: linear-gradient(90deg, #b9b9b9, white); 
+       background: linear-gradient(90deg, #969696, white); 
 }
 body{
 	display: grid;
@@ -25,13 +25,11 @@ body{
   transition-duration: 0.4s;
   cursor: pointer;
 }
-
 .button1 {
-	border: 2px solid #a1d481;
+  border: 2px solid #a1d481;
   background: linear-gradient(198deg, #ffffff, #a1d481);
   color: black;
 }
-
 .button1:hover {
   background: #bdff94;
 }
@@ -46,21 +44,39 @@ var myObstacles = [];
 var myScore;
 var myHighScore;
 var spawnRate;
-var gameLengthInFrames = 2000;
+var gameLengthInFrames = 1000;
+var gameVersion = 0;
 
 document.addEventListener("mousedown", fly);
 document.addEventListener("mouseup", fall);
 
 function fly() {
-accelerate(-0.4)
+accelerate(-0.45);
 }
 
 function fall() {
-accelerate(0.35)
+accelerate(0.4);
 }
 
-function getHighScore(){
-	console.log(localStorage.highScore);
+function verifyVersion() {
+
+	//get the last saved verion from localfiles
+	var version = 0;
+    try { version = parseInt(localStorage.gameVersion); } catch (e) {
+    version = 0; 
+    conole.log("COULDN'T GET LAST VERSION, SETTING VERSION TO 0.");
+    }
+    
+    //if last localsave version is old then reset highscore
+    if(version < gameVersion){
+    	setHighScore(0);
+    }
+    
+    //set current verion to localfiles
+    localStorage.gameVersion = '' + gameVersion;    
+}
+
+function getHighScore(){	
 	var score = 0;
    try { score = parseInt(localStorage.highScore); } catch (e) { score = 0; }
    if (!(typeof score === 'undefined') && !(isNaN(score))) {
@@ -88,11 +104,17 @@ function refreshPage(){
     location.reload();
 } 
 
-function startGame() {
-    myGamePiece = new component(35, 18, "white", 10, 120);
+function startGame() {	    
+    //check if we need to reset highscore
+    verifyVersion();
+    
+    console.log(localStorage.gameVersion);
+    console.log(localStorage.highScore);
+    
+	myGamePiece = new component(35, 18, "white", 0, 180);
     myGamePiece.gravity = 0.35;    
-    myScore = new component("26px", "Consolas", "black", 500, 80, "text");    
-    myHighScore = new component("26px", "Consolas", "black", 500, 40, "text");    
+    myScore = new component("16px", "Consolas", "white", 10, 40, "text");    
+    myHighScore = new component("16px", "Consolas", "white", 10, 20, "text");    
     spawnRate = 150;
     myGameArea.start();  
     myHighScore.text = "HighScore: " + getHighScore();  
@@ -187,7 +209,7 @@ function updateGameArea() {
             if(myGameArea.frameNo > getHighScore())
             {
             	myHighScore.text = "NEW HIGHSCORE!!";
-                myScore.text = "Score: " + myGameArea.frameNo;
+                myScore.text = "HighScore: " + myGameArea.frameNo;
                 
         		setHighScore(myGameArea.frameNo);  
                 
@@ -222,16 +244,16 @@ function updateGameArea() {
     
     if (myGameArea.frameNo == 1 ||  myGameArea.frameNo >= spawnRate) {
     	
-    	spawnRate = myGameArea.frameNo + parseInt(Math.lerp(115,33, myGameArea.frameNo / gameLengthInFrames));
+    	spawnRate = myGameArea.frameNo + parseInt(Math.lerp(115,40, myGameArea.frameNo / gameLengthInFrames));
         x = myGameArea.canvas.width;
         minHeight = 20;
         maxHeight = 200;
         height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
-        minGap = 60;
+        minGap = 65;
         maxGap = parseInt(Math.lerp(200, 150, myGameArea.frameNo / gameLengthInFrames)); //default 200
         gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-        myObstacles.push(new component(25, height, "#b9b9b9", x, 0));
-        myObstacles.push(new component(25, x - height - gap, "#b9b9b9", x, height + gap));       
+        myObstacles.push(new component(25, height, "#969696", x, 0));
+        myObstacles.push(new component(25, x - height - gap, "#969696", x, height + gap));       
     }
     for (i = 0; i < myObstacles.length; i += 1) {
         myObstacles[i].x += Math.lerp(-3,-9.5, myGameArea.frameNo / gameLengthInFrames);
@@ -280,7 +302,6 @@ Math.clamp = function (value, min, max) {
 <br>
 <br>
 <button onclick="refreshPage()" class="button button1">Restart Game </button>
-<p>How long can you stay alive?</p>
 <p>- chrizp.y</p>
 </body>
 </html>
