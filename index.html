@@ -31,6 +31,7 @@ accelerate(0.3)
 }
 
 function getHighScore(){
+	console.log(localStorage.highScore);
 	var score = 0;
    try { score = parseInt(localStorage.highScore); } catch (e) { score = 0; }
    if (!(typeof score === 'undefined') && !(isNaN(score))) {
