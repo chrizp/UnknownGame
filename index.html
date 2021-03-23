@@ -33,7 +33,7 @@ accelerate(0.3)
 function getHighScore(){
 	var score = 0;
    try { score = parseInt(localStorage.highScore); } catch (e) { score = 0; }
-   if (!(typeof score === 'undefined')) {
+   if (!(typeof score === 'undefined') && !(isNaN(score))) {
 		return score;
    }
    return 0;
@@ -49,7 +49,7 @@ function setHighScore(score) {
    }
    if (isNaN(saved)) {
       saved = 0;
-      localStorage.highScore = '0';
+      localStorage.highScore = '' + 0;
    }
    return saved;
 }
@@ -159,7 +159,7 @@ function updateGameArea() {
             	myHighScore.text = "NEW HIGHSCORE!!";
                 myScore.text = "Score: " + myGameArea.frameNo;
                 
-        		setHighScore(myGameArea.frameNo);  
+        	setHighScore(myGameArea.frameNo);  
                 
                 myHighScore.x = 280;
             	myHighScore.y = 185;
