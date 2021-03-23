@@ -4,8 +4,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <style>
 canvas {
-    border:1px solid #d3d3d3;
-    background-color: #f1f1f1;
+       
+       background: linear-gradient(90deg, #b9b9b9, white); 
 }
 body{
 	display: grid;
@@ -13,6 +13,29 @@ body{
     justify-items: center;
     align-items: center;
 }
+.button {
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.button1 {
+	border: 2px solid #a1d481;
+  background: linear-gradient(198deg, #ffffff, #a1d481);
+  color: black;
+}
+
+.button1:hover {
+  background: #bdff94;
+}
+
 </style>
 </head>
 <body onload="startGame()">
@@ -33,7 +56,7 @@ accelerate(-0.4)
 }
 
 function fall() {
-accelerate(0.3)
+accelerate(0.35)
 }
 
 function getHighScore(){
@@ -66,8 +89,8 @@ function refreshPage(){
 } 
 
 function startGame() {
-    myGamePiece = new component(35, 18, "red", 10, 120);
-    myGamePiece.gravity = 0.3;    
+    myGamePiece = new component(35, 18, "white", 10, 120);
+    myGamePiece.gravity = 0.35;    
     myScore = new component("26px", "Consolas", "black", 500, 80, "text");    
     myHighScore = new component("26px", "Consolas", "black", 500, 40, "text");    
     spawnRate = 150;
@@ -166,7 +189,7 @@ function updateGameArea() {
             	myHighScore.text = "NEW HIGHSCORE!!";
                 myScore.text = "Score: " + myGameArea.frameNo;
                 
-        	setHighScore(myGameArea.frameNo);  
+        		setHighScore(myGameArea.frameNo);  
                 
                 myHighScore.x = 280;
             	myHighScore.y = 185;
@@ -175,7 +198,7 @@ function updateGameArea() {
             	myHighScore.update();
             	myScore.update();          
                       
-            	window.stop();
+            	clearInterval(myGameArea.interval);
                 return;
             }
             
@@ -189,13 +212,13 @@ function updateGameArea() {
             myHighScore.update();
             myScore.update();          
                       
-            window.stop();
+            clearInterval(myGameArea.interval);
             return;
         } 
     }
     
     myGameArea.clear();
-    myGameArea.frameNo += 1;  
+    myGameArea.frameNo += 1;
     
     if (myGameArea.frameNo == 1 ||  myGameArea.frameNo >= spawnRate) {
     	
@@ -207,8 +230,8 @@ function updateGameArea() {
         minGap = 60;
         maxGap = parseInt(Math.lerp(200, 150, myGameArea.frameNo / gameLengthInFrames)); //default 200
         gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-        myObstacles.push(new component(25, height, "green", x, 0));
-        myObstacles.push(new component(25, x - height - gap, "green", x, height + gap));       
+        myObstacles.push(new component(25, height, "#b9b9b9", x, 0));
+        myObstacles.push(new component(25, x - height - gap, "#b9b9b9", x, height + gap));       
     }
     for (i = 0; i < myObstacles.length; i += 1) {
         myObstacles[i].x += Math.lerp(-3,-9.5, myGameArea.frameNo / gameLengthInFrames);
@@ -256,7 +279,7 @@ Math.clamp = function (value, min, max) {
 </script>
 <br>
 <br>
-<button onclick="refreshPage()">Restart Game</button>
+<button onclick="refreshPage()" class="button button1">Restart Game </button>
 <p>How long can you stay alive?</p>
 <p>- chrizp.y</p>
 </body>
