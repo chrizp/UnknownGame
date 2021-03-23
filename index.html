@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style = "background-color: #404040;">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <style>
@@ -111,10 +111,10 @@ function startGame() {
     console.log(localStorage.gameVersion);
     console.log(localStorage.highScore);
     
-	myGamePiece = new component(35, 18, "white", 0, 180);
+	myGamePiece = new component(35, 18, "#404040", 0, 180);
     myGamePiece.gravity = 0.35;    
-    myScore = new component("16px", "Consolas", "white", 10, 40, "text");    
-    myHighScore = new component("16px", "Consolas", "white", 10, 20, "text");    
+    myScore = new component("16px", "Consolas", "#404040", 10, 40, "text");    
+    myHighScore = new component("16px", "Consolas", "#404040", 10, 20, "text");    
     spawnRate = 150;
     myGameArea.start();  
     myHighScore.text = "HighScore: " + getHighScore();  
@@ -252,8 +252,8 @@ function updateGameArea() {
         minGap = 65;
         maxGap = parseInt(Math.lerp(200, 150, myGameArea.frameNo / gameLengthInFrames)); //default 200
         gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-        myObstacles.push(new component(25, height, "#969696", x, 0));
-        myObstacles.push(new component(25, x - height - gap, "#969696", x, height + gap));       
+        myObstacles.push(new component(25, height, "#101010", x, 0));
+        myObstacles.push(new component(25, x - height - gap, "#101010", x, height + gap));       
     }
     for (i = 0; i < myObstacles.length; i += 1) {
         myObstacles[i].x += Math.lerp(-3,-9.5, myGameArea.frameNo / gameLengthInFrames);
