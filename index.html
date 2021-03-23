@@ -5,7 +5,7 @@
 <style>
 canvas {
        
-       background: linear-gradient(90deg, #969696, white); 
+       background: linear-gradient(90deg, #101010, #404040); 
 }
 body{
 	display: grid;
@@ -111,7 +111,7 @@ function startGame() {
     console.log(localStorage.gameVersion);
     console.log(localStorage.highScore);
     
-	myGamePiece = new component(35, 18, "#404040", 0, 180);
+    myGamePiece = new component(35, 18, "#404040", 0, 180);
     myGamePiece.gravity = 0.35;    
     myScore = new component("16px", "Consolas", "#404040", 10, 40, "text");    
     myHighScore = new component("16px", "Consolas", "#404040", 10, 20, "text");    
